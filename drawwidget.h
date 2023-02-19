@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QTimer>
 #include <QPen>
+#include <QPainter>
 
 class QPaintEvent;
 class QMouseEvent;
@@ -34,16 +35,23 @@ protected:
     void enableClick();
     void customizePen(QRgb value);
     void resetPen();
+    void drawTriangle(QPoint pt);
+    void updateTriangle();
 
 private:
-    QColor m_drawColor;
     QPixmap m_pixmap;
     QImage m_canvas;
+    QColor m_drawColor;
+    QPen pen;
+
+    QImage triangleCanvas;
+    QPen trianglePen;
 
     QPoint previousPt;
     QTimer clickTimer;
-    QPen pen;
+
     int points = 0;
+
 };
 
 #endif // DRAWWIDGET_H
