@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QWidget>
+#include <QTimer>
+#include <QPen>
 
 class QPaintEvent;
 class QMouseEvent;
@@ -29,11 +31,19 @@ protected:
     void mousePressEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void resizeEvent(QResizeEvent *);
+    void enableClick();
+    void customizePen(QRgb value);
+    void resetPen();
 
 private:
     QColor m_drawColor;
     QPixmap m_pixmap;
     QImage m_canvas;
+
+    QPoint previousPt;
+    QTimer clickTimer;
+    QPen pen;
+    int points = 0;
 };
 
 #endif // DRAWWIDGET_H
