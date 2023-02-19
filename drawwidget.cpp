@@ -17,6 +17,7 @@ DrawWidget::DrawWidget(QWidget *parent) : QWidget(parent)
 {
     m_drawColor = QColor(Qt::black);
     clearCanvas(m_canvas, width(), height());
+    clearCanvas(triangleCanvas, width(), height());
     connect(&clickTimer, &QTimer::timeout, this, &DrawWidget::enableClick); // If timer finishes, enable click function.
 }
 
@@ -30,26 +31,69 @@ DrawWidget::~DrawWidget()
 void DrawWidget::drawPixel(QPoint pt)
 {
     QPainter linePainter(&m_canvas);
-    QRgb value = m_drawColor.rgb();
+    QRgb lineValue = m_drawColor.rgb();
 
-    customizePen(value);
+    customizePen(lineValue);
     linePainter.setPen(pen);
 
     if (previousPt.isNull()) // If point does not initialized, initialize it.
     {
-        // m_canvas.setPixel(pt.x(), pt.y(), value);
+        // m_canvas.setPixel(pt.x(), pt.y(), lineValue);
         this->previousPt = pt;
+        linePainter.end();
+
     }
     else
     {
         linePainter.drawLine(previousPt, pt);
         this->previousPt = pt;
+        linePainter.end();
+        drawTriangle(pt);
+
+
     }
 
     points += 1;
     qDebug() << "x: " << pt.x() << "\t" << "y: " << pt.y() << "\t" << Qt::endl;
 
+}
 
+
+void DrawWidget::drawTriangle(QPoint pt)
+{
+    QPainter trianglePainter(&m_canvas);
+    triangleCanvas = QImage(m_canvas.size(), QImage::Format_ARGB32_Premultiplied); // Create a new QImage object for the triangle
+
+    QColor colorTriangle(0, 0, 255); // Create BLUE QColor object
+    QRgb valueTriangle = colorTriangle.rgb(); // get QColor objects rgb values
+
+    // Set the pen for the triangle painter
+    trianglePen.setColor(valueTriangle);
+    trianglePainter.setPen(trianglePen);
+
+    // Draw the triangle on the triangle image
+    QPoint v1(pt.x(), pt.y());
+    QPoint v2(pt.x()-20, pt.y()+20);
+    QPoint v3(pt.x()+20, pt.y()+20);
+
+    trianglePainter.drawLine(v1, v2);
+    trianglePainter.drawLine(v1, v3);
+    trianglePainter.drawLine(v2, v3);
+
+    // Create a QPainter object to paint the result image
+    QPainter resultPainter(&m_canvas);
+
+    // Draw the triangle image on top of the m_canvas image
+    resultPainter.drawImage(0, 0, triangleCanvas);
+    update();
+
+}
+
+
+void DrawWidget::updateTriangle()
+{
+    clearCanvas(triangleCanvas, width(), height());
+    update();
 }
 
 
@@ -104,6 +148,7 @@ void DrawWidget::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 
     painter.drawPixmap(0,0,QPixmap::fromImage(m_canvas));
+    // painter.drawPixmap(0,0,QPixmap::fromImage(triangleCanvas));
 }
 
 
