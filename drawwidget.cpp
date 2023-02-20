@@ -33,48 +33,62 @@ void DrawWidget::drawPixel(QPoint pt)
     QPainter linePainter(&m_canvas);
     QRgb lineValue = m_drawColor.rgb();
 
-    customizePen(lineValue);
+    customizePen(pen, lineValue, 5);
     linePainter.setPen(pen);
 
     if (previousPt.isNull()) // If point does not initialized, initialize it.
     {
         // m_canvas.setPixel(pt.x(), pt.y(), lineValue);
-        this->previousPt = pt;
+        previousPt = pt;
         linePainter.end();
-
     }
     else
     {
         linePainter.drawLine(previousPt, pt);
-        this->previousPt = pt;
         linePainter.end();
-        drawTriangle(pt);
-
-
+        drawTriangle(previousPt, pt, 40, 100);
+        previousPt = pt;
     }
 
     points += 1;
     qDebug() << "x: " << pt.x() << "\t" << "y: " << pt.y() << "\t" << Qt::endl;
-
 }
 
 
-void DrawWidget::drawTriangle(QPoint pt)
+void DrawWidget::drawTriangle(QPoint previousTrianglePt, QPoint currentTrianglePt, int angle, int length)
 {
     QPainter trianglePainter(&m_canvas);
-    triangleCanvas = QImage(m_canvas.size(), QImage::Format_ARGB32_Premultiplied); // Create a new QImage object for the triangle
-
     QColor colorTriangle(0, 0, 255); // Create BLUE QColor object
     QRgb valueTriangle = colorTriangle.rgb(); // get QColor objects rgb values
 
     // Set the pen for the triangle painter
-    trianglePen.setColor(valueTriangle);
+    customizePen(trianglePen, valueTriangle, 3);
     trianglePainter.setPen(trianglePen);
 
+    triangleCanvas = QImage(m_canvas.size(), QImage::Format_ARGB32_Premultiplied); // Create a new QImage object for the triangle
+
+    // Calculate the bisector vector
+    QPoint bisectorVector;
+    bisectorVector.setX(currentTrianglePt.x() - previousTrianglePt.x());
+    bisectorVector.setY(currentTrianglePt.y() - previousTrianglePt.y());
+
+    // Calculate the angle of the bisector vector
+    qreal bisectorVectorAngle = qRadiansToDegrees(qAtan2(bisectorVector.y(), bisectorVector.x()));
+
+    // Calculate the angles of the adjacent vertices
+    qreal vertexXAngle = bisectorVectorAngle - angle;
+    qreal vertexYAngle = bisectorVectorAngle + angle;
+
+    // Calculate the positions of the adjacent vertices
+    QPoint vertexX(currentTrianglePt.x() + length * qCos(qDegreesToRadians(vertexXAngle)),
+        currentTrianglePt.y() + length * qSin(qDegreesToRadians(vertexXAngle)));
+    QPoint vertexY(currentTrianglePt.x() + length * qCos(qDegreesToRadians(vertexYAngle)),
+        currentTrianglePt.y() + length * qSin(qDegreesToRadians(vertexYAngle)));
+
     // Draw the triangle on the triangle image
-    QPoint v1(pt.x(), pt.y());
-    QPoint v2(pt.x()-20, pt.y()+20);
-    QPoint v3(pt.x()+20, pt.y()+20);
+    QPoint v1(currentTrianglePt.x(), currentTrianglePt.y());
+    QPoint v2(vertexX.x(), vertexX.y());
+    QPoint v3(vertexY.x(), vertexY.y());
 
     trianglePainter.drawLine(v1, v2);
     trianglePainter.drawLine(v1, v3);
@@ -85,14 +99,6 @@ void DrawWidget::drawTriangle(QPoint pt)
 
     // Draw the triangle image on top of the m_canvas image
     resultPainter.drawImage(0, 0, triangleCanvas);
-    update();
-
-}
-
-
-void DrawWidget::updateTriangle()
-{
-    clearCanvas(triangleCanvas, width(), height());
     update();
 }
 
@@ -109,19 +115,20 @@ void DrawWidget::clear()
 }
 
 
-void DrawWidget::customizePen(QRgb value)
+void DrawWidget::customizePen(QPen &currentPen, QRgb value, int width)
 {
-    pen.setColor(value);
-    pen.setWidth(5); // Set pen width to 5.
+    currentPen.setColor(value);
+    currentPen.setWidth(width); // Set pen width to 5.
 }
+
 
 void DrawWidget::resetPen() // If canvas is resetted, set pen color to black.
 {
     QColor color(0, 0, 0); // Create black QColor object
-    QRgb value = color.rgb(); // get QColor objects rgb values
+    QRgb valueBlack = color.rgb(); // Get QColor objects rgb values
 
     setDrawColor(color);
-    pen.setColor(value); // Set it to pen's color.
+    customizePen(pen, valueBlack, 5); // Customize corresponding pen
 }
 
 
@@ -138,7 +145,7 @@ void DrawWidget::printPoints()
         }
     }
 
-    qDebug() << "Total number of points: " << this->points << Qt::endl;
+    qDebug() << "Total number of points: " << points << Qt::endl;
 }
 
 
@@ -196,7 +203,6 @@ void DrawWidget::resizeEvent(QResizeEvent *event)
     p.drawImage(0, 0, m_canvas);
 
     m_canvas = newCanvas;
-
     update();
 }
 
