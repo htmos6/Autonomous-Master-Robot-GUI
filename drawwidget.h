@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QWidget>
 #include <QPainter>
+#include <QQueue>
+#include <QPair>
 #include <QTimer>
 #include <QColor>
 #include <QtMath>
@@ -50,6 +52,12 @@ class DrawWidget : public QWidget
         QPoint previousPt;
         QPoint prePt10;
         QPoint curPt10;
+
+        qreal bisectorVectorAngle = 0;
+        qreal bisectorVectorLength;
+
+        QQueue<QPair<int, int>> angleDistanceQueue;
+        QPair<int, int> angleDistancePair;
 
         QTimer clickTimer;
         int points = 0;
