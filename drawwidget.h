@@ -3,9 +3,12 @@
 
 #include <QObject>
 #include <QWidget>
-#include <QTimer>
-#include <QPen>
 #include <QPainter>
+#include <QTimer>
+#include <QColor>
+#include <QtMath>
+#include <QRgb>
+#include <QPen>
 
 class QPaintEvent;
 class QMouseEvent;
@@ -21,8 +24,8 @@ class DrawWidget : public QWidget
         //unsigned int pixels[1920][1080];
 
     public slots:
-        void clear();
         QColor drawColor();
+        void clear();
         void setDrawColor(QColor color);
 
     signals:
@@ -32,9 +35,10 @@ class DrawWidget : public QWidget
         void mouseMoveEvent(QMouseEvent *);
         void resizeEvent(QResizeEvent *);
 
-        void customizePen(QPen &customizePen, QRgb value, int width);
         void resetPen();
-        void drawTriangle(QPoint previousTrianglePt, QPoint currentTrianglePt, int angle, int length);
+        void customizePen(QPen& currentPen, QRgb value, int width, QString colorName);
+        void calculateAngleDistance(QPoint prePt10, QPoint curPt10);
+        // void drawTriangle(QPoint previousTrianglePt, QPoint currentTrianglePt, int angle, int length);
         void enableClick();
 
     private:
@@ -43,14 +47,12 @@ class DrawWidget : public QWidget
         QColor m_drawColor;
         QPen pen;
 
-        QImage triangleCanvas;
-        QPen trianglePen;
-
         QPoint previousPt;
+        QPoint prePt10;
+        QPoint curPt10;
+
         QTimer clickTimer;
-
         int points = 0;
-
 };
 
 #endif // DRAWWIDGET_H
