@@ -50,8 +50,8 @@ void DrawWidget::drawPixel(QPoint pt)
             linePainter.drawLine(previousPt, pt);
 
             curPt10 = pt;
-            calculateAngleDistance(prePt10, curPt10);
             qDebug() << "x: " << curPt10.x() << "\t" << "y: " << curPt10.y() << "\t" << Qt::endl;
+            calculateAngleDistance(prePt10, curPt10);
             prePt10 = curPt10;
         }
         else 
@@ -68,12 +68,22 @@ void DrawWidget::calculateAngleDistance(QPoint prePt10, QPoint curPt10)
 {
     // Calculate the bisector vector
     QPoint bisectorVector;
+    qreal bisectorVectorAnglePrev = bisectorVectorAngle;
+
     bisectorVector.setX(curPt10.x() - prePt10.x());
     bisectorVector.setY(curPt10.y() - prePt10.y());
 
     // Calculate the angle of the bisector vector
-    qreal bisectorVectorAngle = qRound(qRadiansToDegrees(qAtan2(bisectorVector.y(), bisectorVector.x())));
-    qreal bisectorVectorLength = qRound(qSqrt(qPow(bisectorVector.x(), 2) + qPow(bisectorVector.y(), 2)));
+    bisectorVectorAngle = qRound(qRadiansToDegrees(qAtan2(bisectorVector.y(), bisectorVector.x())));
+    bisectorVectorLength = qRound(qSqrt(qPow(bisectorVector.x(), 2) + qPow(bisectorVector.y(), 2)));
+
+    // Equalize pair object's angle & distance values
+    angleDistancePair.first = int(bisectorVectorAngle - bisectorVectorAnglePrev);
+    angleDistancePair.second = int(bisectorVectorLength);
+
+    // Store angle and distance pair object inside the Queue
+    angleDistanceQueue.enqueue(angleDistancePair);
+
     qDebug() << "Angle: " << bisectorVectorAngle << "Length: " << bisectorVectorLength << Qt::endl;
 }
 
@@ -87,6 +97,11 @@ void DrawWidget::clear()
     previousPt = QPoint();
     prePt10 = QPoint();
     curPt10 = QPoint();
+    
+    while (angleDistanceQueue.isEmpty() == 0)
+    {
+        angleDistanceQueue.dequeue();
+    }
 
     resetPen();
 }
@@ -132,6 +147,10 @@ void DrawWidget::resetPen() // If canvas is resetted, set pen color to black.
 void DrawWidget::printPoints()
 {
     qDebug() << "Total number of points: " << points << Qt::endl;
+    while (!angleDistanceQueue.isEmpty())
+    {
+        qDebug() << angleDistanceQueue.dequeue() << Qt::endl;
+    }
 }
 
 
