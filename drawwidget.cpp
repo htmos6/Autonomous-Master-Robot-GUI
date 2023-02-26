@@ -1,9 +1,6 @@
 #include "drawwidget.h"
 #include <QMouseEvent>
 #include <QPaintEvent>
-#include <QPainter>
-#include <QColor>
-#include <QRgb>
 #include <QThread>
 
 static void clearCanvas(QImage &canvas, int width, int height)
@@ -17,8 +14,7 @@ DrawWidget::DrawWidget(QWidget *parent) : QWidget(parent)
 {
     m_drawColor = QColor(Qt::black);
     clearCanvas(m_canvas, width(), height());
-    clearCanvas(triangleCanvas, width(), height());
-    connect(&clickTimer, &QTimer::timeout, this, &DrawWidget::enableClick); // If timer finishes, enable click function.
+    // connect(&clickTimer, &QTimer::timeout, this, &DrawWidget::enableClick); // If timer finishes, enable click function.
 }
 
 
@@ -33,73 +29,52 @@ void DrawWidget::drawPixel(QPoint pt)
     QPainter linePainter(&m_canvas);
     QRgb lineValue = m_drawColor.rgb();
 
-    customizePen(pen, lineValue, 5);
+    customizePen(pen, lineValue, 1, "custom");
     linePainter.setPen(pen);
 
-    if (previousPt.isNull()) // If point does not initialized, initialize it.
+
+    if (previousPt.isNull()) // If previous point does not initialized, initialize it.
     {
-        // m_canvas.setPixel(pt.x(), pt.y(), lineValue);
         previousPt = pt;
-        linePainter.end();
+        prePt10 = pt;
+        points += 1;
+        qDebug() << "x: " << prePt10.x() << "\t" << "y: " << prePt10.y() << "\t" << Qt::endl;
     }
     else
     {
-        linePainter.drawLine(previousPt, pt);
-        linePainter.end();
-        drawTriangle(previousPt, pt, 40, 100);
+        points += 1;
+        if (points % 10 == 0)
+        {
+            customizePen(pen, lineValue, 3, "red"); // lineValue is a black but inside function it is modified as a red.
+            linePainter.setPen(pen);
+            linePainter.drawLine(previousPt, pt);
+
+            curPt10 = pt;
+            calculateAngleDistance(prePt10, curPt10);
+            qDebug() << "x: " << curPt10.x() << "\t" << "y: " << curPt10.y() << "\t" << Qt::endl;
+            prePt10 = curPt10;
+        }
+        else 
+        {
+            linePainter.drawLine(previousPt, pt);
+        }
         previousPt = pt;
     }
 
-    points += 1;
-    qDebug() << "x: " << pt.x() << "\t" << "y: " << pt.y() << "\t" << Qt::endl;
 }
 
 
-void DrawWidget::drawTriangle(QPoint previousTrianglePt, QPoint currentTrianglePt, int angle, int length)
+void DrawWidget::calculateAngleDistance(QPoint prePt10, QPoint curPt10)
 {
-    QPainter trianglePainter(&m_canvas);
-    QColor colorTriangle(0, 0, 255); // Create BLUE QColor object
-    QRgb valueTriangle = colorTriangle.rgb(); // get QColor objects rgb values
-
-    // Set the pen for the triangle painter
-    customizePen(trianglePen, valueTriangle, 3);
-    trianglePainter.setPen(trianglePen);
-
-    triangleCanvas = QImage(m_canvas.size(), QImage::Format_ARGB32_Premultiplied); // Create a new QImage object for the triangle
-
     // Calculate the bisector vector
     QPoint bisectorVector;
-    bisectorVector.setX(currentTrianglePt.x() - previousTrianglePt.x());
-    bisectorVector.setY(currentTrianglePt.y() - previousTrianglePt.y());
+    bisectorVector.setX(curPt10.x() - prePt10.x());
+    bisectorVector.setY(curPt10.y() - prePt10.y());
 
     // Calculate the angle of the bisector vector
-    qreal bisectorVectorAngle = qRadiansToDegrees(qAtan2(bisectorVector.y(), bisectorVector.x()));
-
-    // Calculate the angles of the adjacent vertices
-    qreal vertexXAngle = bisectorVectorAngle - angle;
-    qreal vertexYAngle = bisectorVectorAngle + angle;
-
-    // Calculate the positions of the adjacent vertices
-    QPoint vertexX(currentTrianglePt.x() + length * qCos(qDegreesToRadians(vertexXAngle)),
-        currentTrianglePt.y() + length * qSin(qDegreesToRadians(vertexXAngle)));
-    QPoint vertexY(currentTrianglePt.x() + length * qCos(qDegreesToRadians(vertexYAngle)),
-        currentTrianglePt.y() + length * qSin(qDegreesToRadians(vertexYAngle)));
-
-    // Draw the triangle on the triangle image
-    QPoint v1(currentTrianglePt.x(), currentTrianglePt.y());
-    QPoint v2(vertexX.x(), vertexX.y());
-    QPoint v3(vertexY.x(), vertexY.y());
-
-    trianglePainter.drawLine(v1, v2);
-    trianglePainter.drawLine(v1, v3);
-    trianglePainter.drawLine(v2, v3);
-
-    // Create a QPainter object to paint the result image
-    QPainter resultPainter(&m_canvas);
-
-    // Draw the triangle image on top of the m_canvas image
-    resultPainter.drawImage(0, 0, triangleCanvas);
-    update();
+    qreal bisectorVectorAngle = qRound(qRadiansToDegrees(qAtan2(bisectorVector.y(), bisectorVector.x())));
+    qreal bisectorVectorLength = qRound(qSqrt(qPow(bisectorVector.x(), 2) + qPow(bisectorVector.y(), 2)));
+    qDebug() << "Angle: " << bisectorVectorAngle << "Length: " << bisectorVectorLength << Qt::endl;
 }
 
 
@@ -110,15 +85,37 @@ void DrawWidget::clear()
 
     points = 0;
     previousPt = QPoint();
+    prePt10 = QPoint();
+    curPt10 = QPoint();
 
     resetPen();
 }
 
 
-void DrawWidget::customizePen(QPen &currentPen, QRgb value, int width)
+void DrawWidget::customizePen(QPen &currentPen, QRgb valueCustom, int width, QString colorName)
 {
-    currentPen.setColor(value);
-    currentPen.setWidth(width); // Set pen width to 5.
+    QColor colorRed(255, 0, 0); // Create red QColor object
+    QColor colorBlack(0, 0, 0); // Create black QColor object
+    QRgb valueRed = colorRed.rgb(); // Get QColor objects rgb red
+    QRgb valueBlack = colorBlack.rgb(); // Get QColor objects rgb black
+
+    if (colorName == "red")
+    {
+        currentPen.setColor(valueRed);
+        currentPen.setWidth(width); // Set pen width to 5.
+    }
+    else if (colorName == "black")
+    {
+        currentPen.setColor(valueBlack);
+        currentPen.setWidth(width); // Set pen width to 5.
+    }
+    else
+    {
+        currentPen.setColor(valueCustom);
+        currentPen.setWidth(width); // Set pen width to 5
+    }
+
+
 }
 
 
@@ -128,23 +125,12 @@ void DrawWidget::resetPen() // If canvas is resetted, set pen color to black.
     QRgb valueBlack = color.rgb(); // Get QColor objects rgb values
 
     setDrawColor(color);
-    customizePen(pen, valueBlack, 5); // Customize corresponding pen
+    customizePen(pen, valueBlack, 1, "black"); // Customize corresponding pen
 }
 
 
 void DrawWidget::printPoints()
 {
-    for (int y = 0; y < m_canvas.height(); ++y)
-    {
-        unsigned char *line = m_canvas.scanLine(y);
-        for (int x = 0; x < m_canvas.width(); ++x)
-        {
-            unsigned char rgb = line[x];
-            if (rgb == 0x0)
-                ;// qDebug() << "x: " << x << "\t" << "y: " << y << "\t" << QString("0x%1").arg(rgb, 8, 16, QLatin1Char( '0' )) << Qt::endl;
-        }
-    }
-
     qDebug() << "Total number of points: " << points << Qt::endl;
 }
 
@@ -155,7 +141,6 @@ void DrawWidget::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 
     painter.drawPixmap(0,0,QPixmap::fromImage(m_canvas));
-    // painter.drawPixmap(0,0,QPixmap::fromImage(triangleCanvas));
 }
 
 
@@ -165,8 +150,9 @@ void DrawWidget::mousePressEvent(QMouseEvent *event)
     {
         drawPixel(event->pos());
         repaint();
-        clickTimer.start(100); // start the timer with a 100 ms interval
-        setEnabled(false); // disable mouse click function
+        // start the timer with a 100 ms interval
+        // clickTimer.start(10);
+        // setEnabled(true); // disable mouse click function
     }
 }
 
@@ -208,6 +194,72 @@ void DrawWidget::resizeEvent(QResizeEvent *event)
 
 void DrawWidget::enableClick()
 {
+    ;
+    /*
     setEnabled(true); // re-enable mouse click function
     clickTimer.stop(); // stop the timer
+    */
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+    void DrawWidget::drawTriangle(QPoint previousTrianglePt, QPoint currentTrianglePt, int angle, int length)
+    {
+        QPainter trianglePainter(&m_canvas);
+        QColor colorTriangle(0, 0, 255); // Create BLUE QColor object
+        QRgb valueTriangle = colorTriangle.rgb(); // get QColor objects rgb values
+
+        // Set the pen for the triangle painter
+        customizePen(trianglePen, valueTriangle, 3);
+        trianglePainter.setPen(trianglePen);
+
+        triangleCanvas = QImage(m_canvas.size(), QImage::Format_ARGB32_Premultiplied); // Create a new QImage object for the triangle
+
+        // Calculate the bisector vector
+        QPoint bisectorVector;
+        bisectorVector.setX(currentTrianglePt.x() - previousTrianglePt.x());
+        bisectorVector.setY(currentTrianglePt.y() - previousTrianglePt.y());
+
+        // Calculate the angle of the bisector vector
+        qreal bisectorVectorAngle = qRadiansToDegrees(qAtan2(bisectorVector.y(), bisectorVector.x()));
+
+        // Calculate the angles of the adjacent vertices
+        qreal vertexXAngle = bisectorVectorAngle - angle;
+        qreal vertexYAngle = bisectorVectorAngle + angle;
+
+        // Calculate the positions of the adjacent vertices
+        QPoint vertexX(currentTrianglePt.x() + length * qCos(qDegreesToRadians(vertexXAngle)),
+            currentTrianglePt.y() + length * qSin(qDegreesToRadians(vertexXAngle)));
+        QPoint vertexY(currentTrianglePt.x() + length * qCos(qDegreesToRadians(vertexYAngle)),
+            currentTrianglePt.y() + length * qSin(qDegreesToRadians(vertexYAngle)));
+
+        // Draw the triangle on the triangle image
+        QPoint v1(currentTrianglePt.x(), currentTrianglePt.y());
+        QPoint v2(vertexX.x(), vertexX.y());
+        QPoint v3(vertexY.x(), vertexY.y());
+
+        // trianglePainter.drawLine(v1, v2);
+        // trianglePainter.drawLine(v1, v3);
+        // trianglePainter.drawLine(v2, v3);
+
+        // Create a QPainter object to paint the result image
+        QPainter resultPainter(&m_canvas);
+
+        // Draw the triangle image on top of the m_canvas image
+        resultPainter.drawImage(0, 0, triangleCanvas);
+        update();
+    }
+*/
