@@ -15,6 +15,8 @@ public:
 
 private slots:
     void on_actionPrint_triggered();
+    void on_actionConnect_triggered();
+    void on_actionSend_triggered();
 
 private:
     DrawWidget *m_drawWidget;
@@ -71,6 +73,16 @@ MainWindow::~MainWindow()
 void MainWindow::colorPickTriggered()
 {
     d->pickColor();
+}
+
+void MainWindow::on_actionConnect_triggered()
+{
+    ;
+}
+
+void MainWindow::on_actionSend_triggered()
+{
+    d->printPoints();
 }
 
 void MainWindow::clear()

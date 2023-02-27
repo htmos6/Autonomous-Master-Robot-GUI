@@ -2,10 +2,22 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QString>
+#include <QSpinBox>
 
-namespace Ui {
-class MainWindow;
+#include <QDataStream>
+#include <QDialog>
+#include <QtNetwork/QTcpSocket>
+
+
+QT_BEGIN_NAMESPACE
+namespace Ui 
+{
+    class MainWindow;
 }
+class QTcpSocket;
+QT_END_NAMESPACE
+
 
 class MainWindowPrivate;
 class MainWindow : public QMainWindow
@@ -20,11 +32,11 @@ public slots:
     void colorPickTriggered();
     void clear();
     void printPoints();
+    void on_actionSend_triggered();
+    void on_actionConnect_triggered();
 
 private:
     MainWindowPrivate *d;
 };
 
 #endif // MAINWINDOW_H
-
-

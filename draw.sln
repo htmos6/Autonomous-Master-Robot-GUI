@@ -5,6 +5,11 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "draw", "draw.vcxproj", "{E00911AD-F111-382E-9418-75EDB20496A3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{65DE6337-0EB3-4567-87F8-9B0A1DCC9D06}"
+	ProjectSection(SolutionItems) = preProject
+		QtDocumentation.txt = QtDocumentation.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
