@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>474</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -34,6 +34,8 @@
    <addaction name="actionColorPick"/>
    <addaction name="actionClear"/>
    <addaction name="actionPrint"/>
+   <addaction name="actionSend"/>
+   <addaction name="actionConnect"/>
    <addaction name="separator"/>
    <addaction name="separator"/>
   </widget>
@@ -54,6 +56,16 @@
   <action name="actionPrint">
    <property name="text">
     <string>Print</string>
+   </property>
+  </action>
+  <action name="actionSend">
+   <property name="text">
+    <string>Send</string>
+   </property>
+  </action>
+  <action name="actionConnect">
+   <property name="text">
+    <string>Connect</string>
    </property>
   </action>
  </widget>

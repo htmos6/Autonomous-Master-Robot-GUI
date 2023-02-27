@@ -1,0 +1,7 @@
+Build Errors:
+
+Error: Cannot open include file: 'QTcpSocket': No such file or directory
+Solution: Instead of including QTcpSocket like  "#include <QTcpSocket>" include like the following  "#include <QtNetwork/QTcpSocket>" without quoting marks.
+
+
+
