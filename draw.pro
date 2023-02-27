@@ -22,3 +22,6 @@ HEADERS  += mainwindow.h \
     drawwidget.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    Resources.qrc
