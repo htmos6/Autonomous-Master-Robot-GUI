@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>kt007.ico</file>
+    </qresource>
+</RCC>
