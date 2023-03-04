@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,10 +16,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    drawwidget.cpp
+    drawwidget.cpp \
+    picoconnection.cpp
 
 HEADERS  += mainwindow.h \
-    drawwidget.h
+    drawwidget.h \
+    picoconnection.h
 
 FORMS    += mainwindow.ui
 
