@@ -12,6 +12,8 @@
 #include <QRgb>
 #include <QPen>
 
+#include "picoconnection.h"
+
 class QPaintEvent;
 class QMouseEvent;
 class DrawWidget : public QWidget
@@ -61,6 +63,7 @@ class DrawWidget : public QWidget
 
         QTimer clickTimer;
         int points = 0;
+        PicoConnection* pico = nullptr;
 };
 
 #endif // DRAWWIDGET_H
