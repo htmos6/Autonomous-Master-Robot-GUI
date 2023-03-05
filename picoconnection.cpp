@@ -9,6 +9,13 @@ PicoConnection::PicoConnection(QObject *parent)
     in.setVersion(QDataStream::Qt_4_0);
 
     QObject::connect(tcpSocket, &QAbstractSocket::disconnected, this, &PicoConnection::disconnected);
+    QObject::connect(tcpSocket, &QIODevice::readyRead, this, &PicoConnection::getFromPico);
+}
+
+void PicoConnection::getFromPico(){
+    QByteArray socketBuffer = tcpSocket->readAll();
+    qDebug() << "Received: ";
+    qDebug() << socketBuffer;
 }
 
 bool PicoConnection::connect(QString ip, int port){
@@ -45,4 +52,5 @@ void PicoConnection::disconnected(){
 PicoConnection::~PicoConnection(){
     tcpSocket->close();
     delete tcpSocket;
+    qDebug() << "Socket closed";
 }
