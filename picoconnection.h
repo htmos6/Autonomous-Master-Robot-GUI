@@ -26,6 +26,7 @@ public:
     void send(QString msg);
     void disconnect();
     void disconnected();
+    void getFromPico();
 signals:
 
 private:

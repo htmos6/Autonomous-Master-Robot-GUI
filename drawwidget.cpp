@@ -15,9 +15,12 @@ DrawWidget::DrawWidget(QWidget *parent) : QWidget(parent)
     m_drawColor = QColor(Qt::black);
     clearCanvas(m_canvas, width(), height());
     // connect(&clickTimer, &QTimer::timeout, this, &DrawWidget::enableClick); // If timer finishes, enable click function.
+}
 
+void DrawWidget::connectToPico(){
     pico = new PicoConnection(this);
-    pico->connect("192.168.137.15", 10000);
+    pico->connect("192.168.137.41", 10006);
+    qDebug() << "test" << Qt::endl;
 }
 
 

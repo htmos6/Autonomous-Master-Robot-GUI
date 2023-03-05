@@ -12,6 +12,7 @@ public:
     void pickColor();
     void clear();
     void printPoints();
+    void connect();
 
 private slots:
     void on_actionPrint_triggered();
@@ -55,8 +56,17 @@ void MainWindowPrivate::printPoints()
     m_drawWidget->printPoints();
 }
 
+void MainWindowPrivate::connect()
+{
+    m_drawWidget->connectToPico();
+}
+
 MainWindowPrivate::~MainWindowPrivate(){
     delete m_ui;
+}
+
+void MainWindowPrivate::on_actionConnect_triggered(){
+    ;
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -77,7 +87,7 @@ void MainWindow::colorPickTriggered()
 
 void MainWindow::on_actionConnect_triggered()
 {
-    ;
+    d->connect();
 }
 
 void MainWindow::on_actionSend_triggered()

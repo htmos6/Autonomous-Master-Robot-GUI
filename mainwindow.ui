@@ -120,10 +120,27 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionConnect</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>connectToPico()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>236</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>colorPickTriggered()</slot>
   <slot>clear()</slot>
   <slot>printPoints()</slot>
+  <slot>connectToPico()</slot>
  </slots>
 </ui>
