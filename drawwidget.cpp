@@ -2,6 +2,7 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QThread>
+#include <QUdpSocket>
 
 static void clearCanvas(QImage &canvas, int width, int height)
 {
@@ -17,10 +18,49 @@ DrawWidget::DrawWidget(QWidget *parent) : QWidget(parent)
     // connect(&clickTimer, &QTimer::timeout, this, &DrawWidget::enableClick); // If timer finishes, enable click function.
 }
 
+
+QString receive_broadcasted_ip(uint16_t port) {
+    // Create a UDP socket for receiving broadcast messages
+    QUdpSocket udpSocket;
+    udpSocket.bind(QHostAddress::AnyIPv4, port, QUdpSocket::ShareAddress);
+
+    // Join the multicast group to receive broadcast messages
+    udpSocket.joinMulticastGroup(QHostAddress::Broadcast);
+
+    // Wait for a broadcast message to be received
+    QByteArray datagram;
+    while (datagram.isEmpty()) {
+        if (udpSocket.waitForReadyRead(3000)) {
+            datagram.resize(udpSocket.pendingDatagramSize());
+            udpSocket.readDatagram(datagram.data(), datagram.size());
+        } else {
+            qWarning() << "Timed out waiting for broadcast message";
+            return "";
+        }
+    }
+
+    // Convert the received message to an IP address string
+    QString ip_str = QString::fromLatin1(datagram);
+
+    // Print the received IP address
+    qDebug() << "Received broadcasted IP address:" << ip_str;
+
+    return ip_str;
+}
+
+
 void DrawWidget::connectToPico(){
-    pico = new PicoConnection(this);
+    /*pico = new PicoConnection(this);
     pico->connect("192.168.137.41", 10006);
-    qDebug() << "test" << Qt::endl;
+    qDebug() << "test" << Qt::endl;*/
+    QString ip = receive_broadcasted_ip(12345);
+
+    if(ip == ""){
+        qDebug() << "No Pico Found!" << Qt::endl;
+        return;
+    }
+    pico = new PicoConnection(this);
+    pico->connect(ip, 4242);
 }
 
 
@@ -57,7 +97,15 @@ void DrawWidget::drawPixel(QPoint pt)
 
             curPt10 = pt;
             qDebug() << "x: " << curPt10.x() << "\t" << "y: " << curPt10.y() << "\t" << Qt::endl;
-            calculateAngleDistance(prePt10, curPt10);
+
+            // Equalize pair object's angle & distance values
+            angleDistancePair.first = curPt10.x();
+            angleDistancePair.second = curPt10.y();
+
+            // Store angle and distance pair object inside the Queue
+            angleDistanceQueue.enqueue(angleDistancePair);
+
+            //calculateAngleDistance(prePt10, curPt10);
             prePt10 = curPt10;
         }
         else 
@@ -153,9 +201,10 @@ void DrawWidget::resetPen() // If canvas is resetted, set pen color to black.
 void DrawWidget::printPoints()
 {
     qDebug() << "Total number of points: " << points << Qt::endl;
+    pico->send("Path Begin\n");
     while (!angleDistanceQueue.isEmpty())
     {
-        pico->send(QString::number(angleDistanceQueue.front().first) + "," + QString::number(angleDistanceQueue.front().second));
+        pico->send(QString::number(angleDistanceQueue.front().first) + "," + QString::number(angleDistanceQueue.front().second) + "\n");
         qDebug() << angleDistanceQueue.dequeue() << Qt::endl;
     }
 }
