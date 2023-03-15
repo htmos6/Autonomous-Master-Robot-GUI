@@ -23,7 +23,7 @@ class DrawWidget : public QWidget
         explicit DrawWidget(QWidget *parent = 0);
         ~DrawWidget();
 
-        void drawPixel(QPoint pt);
+        void drawPixel(QPoint pt, bool have_samples = true);
         void printPoints();
         //unsigned int pixels[1920][1080];
 

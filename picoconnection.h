@@ -27,6 +27,8 @@ public:
     void disconnect();
     void disconnected();
     void getFromPico();
+    std::function<void(QString)> receive_cb = [](QString received){    qDebug() << "Received: ";
+                                                                       qDebug() << received;    };
 signals:
 
 private:
@@ -36,5 +38,7 @@ private:
     int pico_port;
 
 };
+
+std::vector<std::string> split (const std::string &s, char delim);
 
 #endif // PICOCONNECTION_H

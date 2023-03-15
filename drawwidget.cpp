@@ -70,13 +70,18 @@ DrawWidget::~DrawWidget()
 }
 
 
-void DrawWidget::drawPixel(QPoint pt)
+void DrawWidget::drawPixel(QPoint pt, bool have_samples)
 {
     QPainter linePainter(&m_canvas);
     QRgb lineValue = m_drawColor.rgb();
 
-    customizePen(pen, lineValue, 1, "custom");
-    linePainter.setPen(pen);
+    if(have_samples){
+        customizePen(pen, lineValue, 1, "custom");
+        linePainter.setPen(pen);
+    }else{
+        customizePen(pen, lineValue, 1, "custom");
+        linePainter.setPen(pen);
+    }
 
 
     if (previousPt.isNull()) // If previous point does not initialized, initialize it.
@@ -85,14 +90,30 @@ void DrawWidget::drawPixel(QPoint pt)
         prePt10 = pt;
         points += 1;
         qDebug() << "x: " << prePt10.x() << "\t" << "y: " << prePt10.y() << "\t" << Qt::endl;
+
+        if(have_samples){
+            curPt10 = pt;
+            customizePen(pen, lineValue, 3, "red"); // lineValue is a black but inside function it is modified as a red.
+            linePainter.setPen(pen);
+
+            // Equalize pair object's angle & distance values
+            angleDistancePair.first = curPt10.x();
+            angleDistancePair.second = curPt10.y();
+
+            // Store angle and distance pair object inside the Queue
+            angleDistanceQueue.enqueue(angleDistancePair);
+        }
     }
     else
     {
         points += 1;
         if (points % 10 == 0)
         {
-            customizePen(pen, lineValue, 3, "red"); // lineValue is a black but inside function it is modified as a red.
-            linePainter.setPen(pen);
+            if(have_samples){
+                customizePen(pen, lineValue, 3, "red"); // lineValue is a black but inside function it is modified as a red.
+                linePainter.setPen(pen);
+            }
+
             linePainter.drawLine(previousPt, pt);
 
             curPt10 = pt;
@@ -165,8 +186,10 @@ void DrawWidget::customizePen(QPen &currentPen, QRgb valueCustom, int width, QSt
 {
     QColor colorRed(255, 0, 0); // Create red QColor object
     QColor colorBlack(0, 0, 0); // Create black QColor object
+    QColor colorBlue(0, 0, 255);
     QRgb valueRed = colorRed.rgb(); // Get QColor objects rgb red
     QRgb valueBlack = colorBlack.rgb(); // Get QColor objects rgb black
+    QRgb valueBlue = colorBlue.rgb();
 
     if (colorName == "red")
     {
@@ -176,6 +199,11 @@ void DrawWidget::customizePen(QPen &currentPen, QRgb valueCustom, int width, QSt
     else if (colorName == "black")
     {
         currentPen.setColor(valueBlack);
+        currentPen.setWidth(width); // Set pen width to 5.
+    }
+    else if(colorName == "blue")
+    {
+        currentPen.setColor(valueBlue);
         currentPen.setWidth(width); // Set pen width to 5.
     }
     else
@@ -207,6 +235,25 @@ void DrawWidget::printPoints()
         pico->send(QString::number(angleDistanceQueue.front().first) + "," + QString::number(angleDistanceQueue.front().second) + "\n");
         qDebug() << angleDistanceQueue.dequeue() << Qt::endl;
     }
+
+    previousPt = QPoint();
+
+    QColor color(0, 0, 255); // Create black QColor object
+    QRgb valueBlue = color.rgb(); // Get QColor objects rgb values
+
+    setDrawColor(color);
+    customizePen(pen, valueBlue, 1, "blue");
+
+    // Customize corresponding pen
+
+    pico->receive_cb = [this](QString received){
+        std::vector<std::string> locs = split(received.toStdString(), ';');
+        for (std::string loc : locs){
+            std::vector<std::string> loc_x_y = split(loc, ',');
+            drawPixel(QPoint(stoi(loc_x_y[1]), stoi(loc_x_y[2])), false);
+            repaint();
+        }
+    };
 }
 
 
