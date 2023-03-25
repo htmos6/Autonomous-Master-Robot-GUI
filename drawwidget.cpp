@@ -114,26 +114,44 @@ void DrawWidget::drawPixel(QPoint pt, bool have_samples)
                 linePainter.setPen(pen);
             }
 
-            linePainter.drawLine(previousPt, pt);
+            if (distCalculator(prePt10, pt))
+            {
 
-            curPt10 = pt;
-            qDebug() << "x: " << curPt10.x() << "\t" << "y: " << curPt10.y() << "\t" << Qt::endl;
+                linePainter.drawLine(previousPt, pt);
+                curPt10 = pt;
+                qDebug() << "x: " << curPt10.x() << "\t" << "y: " << curPt10.y() << "\t" << Qt::endl;
 
-            // Equalize pair object's angle & distance values
-            angleDistancePair.first = curPt10.x();
-            angleDistancePair.second = curPt10.y();
+                // Equalize pair object's angle & distance values
+                angleDistancePair.first = curPt10.x();
+                angleDistancePair.second = curPt10.y();
 
-            // Store angle and distance pair object inside the Queue
-            angleDistanceQueue.enqueue(angleDistancePair);
+                // Store angle and distance pair object inside the Queue
+                angleDistanceQueue.enqueue(angleDistancePair);
 
-            //calculateAngleDistance(prePt10, curPt10);
-            prePt10 = curPt10;
+                //calculateAngleDistance(prePt10, curPt10);
+                prePt10 = curPt10;
+            }
         }
-        else 
+        else
         {
             linePainter.drawLine(previousPt, pt);
         }
         previousPt = pt;
+    }
+
+}
+
+
+bool DrawWidget::distCalculator(QPoint prePt10, QPoint curPt10)
+{
+    double distVal = (qSqrt(qPow(curPt10.x()-prePt10.x(), 2) + qPow(curPt10.y()-prePt10.y(), 2)));
+    if (distVal >= 9 && distVal <= 11)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 
 }
@@ -229,6 +247,10 @@ void DrawWidget::resetPen() // If canvas is resetted, set pen color to black.
 void DrawWidget::printPoints()
 {
     qDebug() << "Total number of points: " << points << Qt::endl;
+    if(pico==nullptr){
+        qDebug() << "No connection to pico!" << Qt::endl;
+        return;
+    }
     pico->send("Path Begin\n");
     while (!angleDistanceQueue.isEmpty())
     {

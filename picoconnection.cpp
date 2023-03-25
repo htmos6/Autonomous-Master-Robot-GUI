@@ -30,11 +30,20 @@ bool PicoConnection::connect(QString ip, int port){
 }
 
 void PicoConnection::send(QString msg){
+    if(!tcpSocket->isOpen()){
+        qDebug() << "No connection to pico!" << Qt::endl;
+        return;
+    }
     std::string command_std = msg.toStdString();
     const char* p = command_std.c_str();
     QByteArray msg_b;
     msg_b.append(p);
-    tcpSocket->write(msg_b);
+    try {
+        tcpSocket->write(msg_b);
+    } catch (bool err) {
+        qDebug() << "No connection to pico!" << Qt::endl;
+    }
+
 }
 
 void PicoConnection::disconnect(){
