@@ -91,7 +91,7 @@ void DrawWidget::drawPixel(QPoint pt, bool have_samples)
         points += 1;
         qDebug() << "x: " << prePt10.x() << "\t" << "y: " << prePt10.y() << "\t" << Qt::endl;
 
-        if(have_samples){
+        /*if(have_samples){
             curPt10 = pt;
             customizePen(pen, lineValue, 3, "red"); // lineValue is a black but inside function it is modified as a red.
             linePainter.setPen(pen);
@@ -102,12 +102,12 @@ void DrawWidget::drawPixel(QPoint pt, bool have_samples)
 
             // Store angle and distance pair object inside the Queue
             angleDistanceQueue.enqueue(angleDistancePair);
-        }
+        }*/
     }
     else
     {
         points += 1;
-        if (points % 10 == 0)
+        if (points % 1 == 0)
         {
             if(have_samples){
                 customizePen(pen, lineValue, 3, "red"); // lineValue is a black but inside function it is modified as a red.
