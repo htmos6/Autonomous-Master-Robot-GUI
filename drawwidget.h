@@ -23,7 +23,7 @@ class DrawWidget : public QWidget
         explicit DrawWidget(QWidget *parent = 0);
         ~DrawWidget();
 
-        void drawPixel(QPoint pt);
+        void drawPixel(QPoint pt, bool have_samples = true);
         void printPoints();
         //unsigned int pixels[1920][1080];
 
@@ -43,6 +43,7 @@ class DrawWidget : public QWidget
         void resetPen();
         void customizePen(QPen& currentPen, QRgb value, int width, QString colorName);
         void calculateAngleDistance(QPoint prePt10, QPoint curPt10);
+        bool distCalculator(QPoint prePt10, QPoint curPt10);
         // void drawTriangle(QPoint previousTrianglePt, QPoint currentTrianglePt, int angle, int length);
         void enableClick();
 
