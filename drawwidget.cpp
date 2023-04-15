@@ -16,6 +16,7 @@ DrawWidget::DrawWidget(QWidget *parent) : QWidget(parent)
     m_drawColor = QColor(Qt::black);
     clearCanvas(m_canvas, width(), height());
     // connect(&clickTimer, &QTimer::timeout, this, &DrawWidget::enableClick); // If timer finishes, enable click function.
+    resetPen();
 }
 
 
@@ -70,18 +71,13 @@ DrawWidget::~DrawWidget()
 }
 
 
-void DrawWidget::drawPixel(QPoint pt, bool have_samples)
+void DrawWidget::drawPixel(QPoint pt, bool is_echoed)
 {
     QPainter linePainter(&m_canvas);
-    QRgb lineValue = m_drawColor.rgb();
+    //QRgb lineValue = m_drawColor.rgb();
 
-    if(have_samples){
-        customizePen(pen, lineValue, 1, "custom");
-        linePainter.setPen(pen);
-    }else{
-        customizePen(pen, lineValue, 1, "custom");
-        linePainter.setPen(pen);
-    }
+    //customizePen(pen, lineValue, 1, "custom");
+    linePainter.setPen(pen);
 
 
     if (previousPt.isNull()) // If previous point does not initialized, initialize it.
@@ -109,12 +105,7 @@ void DrawWidget::drawPixel(QPoint pt, bool have_samples)
         points += 1;
         if (points % 1 == 0)
         {
-            if(have_samples){
-                customizePen(pen, lineValue, 3, "red"); // lineValue is a black but inside function it is modified as a red.
-                linePainter.setPen(pen);
-            }
-
-            if (distCalculator(prePt10, pt))
+            if (distCalculator(prePt10, pt) || is_echoed)
             {
 
                 linePainter.drawLine(previousPt, pt);
@@ -236,11 +227,11 @@ void DrawWidget::customizePen(QPen &currentPen, QRgb valueCustom, int width, QSt
 
 void DrawWidget::resetPen() // If canvas is resetted, set pen color to black.
 {
-    QColor color(0, 0, 0); // Create black QColor object
+    QColor color(255, 0, 0); // Create black QColor object
     QRgb valueBlack = color.rgb(); // Get QColor objects rgb values
 
     setDrawColor(color);
-    customizePen(pen, valueBlack, 1, "black"); // Customize corresponding pen
+    customizePen(pen, valueBlack, 3, "red"); // Customize corresponding pen
 }
 
 
@@ -264,15 +255,16 @@ void DrawWidget::printPoints()
     QRgb valueBlue = color.rgb(); // Get QColor objects rgb values
 
     setDrawColor(color);
-    customizePen(pen, valueBlue, 1, "blue");
+    customizePen(pen, valueBlue, 3, "blue");
 
     // Customize corresponding pen
 
     pico->receive_cb = [this](QString received){
         std::vector<std::string> locs = split(received.toStdString(), ';');
+        qDebug() << received << Qt::endl;
         for (std::string loc : locs){
             std::vector<std::string> loc_x_y = split(loc, ',');
-            drawPixel(QPoint(stoi(loc_x_y[1]), stoi(loc_x_y[2])), false);
+            drawPixel(QPoint(stoi(loc_x_y[1]), stoi(loc_x_y[2])), true);
             repaint();
         }
     };
@@ -303,7 +295,7 @@ void DrawWidget::mousePressEvent(QMouseEvent *event)
 
 void DrawWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    if(event->buttons() & Qt::LeftButton)
+    if((event->buttons() & Qt::LeftButton) || (event->buttons() & Qt::TouchPointPressed))
     {
         drawPixel(event->pos());
         repaint();
