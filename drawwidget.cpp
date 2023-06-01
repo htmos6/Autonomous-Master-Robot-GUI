@@ -8,6 +8,54 @@ static void clearCanvas(QImage &canvas, int width, int height)
 {
     canvas = QImage(width, height, QImage::Format_RGB888);
     canvas.fill(QColor(Qt::white));
+    QPainter painter(&canvas);
+    QColor purple(160, 32, 240);  // RGB values for purple
+    QColor orange(217, 106, 22);  // RGB values for purple
+    QFont font("Arial", 12, QFont::Bold);  // Specify the font family, size, and style
+    int startOfLastPurplePoint = ((width-60)/60)*60;
+
+    // Set the pen properties for the grid lines
+    QPen pen(Qt::gray); // Set the color of the grid lines
+    pen.setWidth(1);     // Set the width of the grid lines
+
+    painter.setPen(pen);
+
+    // Define the size and spacing of the grid cells
+    int gridSize = 10;   // Size of each grid cell in pixels
+    // Draw the vertical lines
+    for (int x = 0; x < width; x += gridSize) {
+        painter.drawLine(x, 0, x, height);  
+    }
+    // Draw the horizontal lines
+    for (int y = 0; y < height; y += gridSize) {
+        painter.drawLine(0, y, width, y);
+    }
+
+    pen.setBrush(purple);
+    pen.setWidth(4);     // Set the width of the grid lines
+    painter.setPen(pen);
+    for (int x = 0; x < width; x += 60) {
+        for (int y = 0; y < height; y += 60) {
+            painter.drawPoint(x, y);
+        }
+    }
+
+    // Write 60 cm for the grid distances for real life
+    pen.setBrush(Qt::red);
+    //pen.setWidth(4);     // Set the width of the grid lines
+    painter.setFont(font);
+    painter.setPen(pen);
+    painter.drawText(startOfLastPurplePoint+8, 30, "60 cm");
+
+    // Draw a line between two point which are demonstrated with purple points
+    pen.setWidth(3);     // Set the width of the grid lines
+    painter.setPen(pen);
+    painter.drawLine(startOfLastPurplePoint, 5, startOfLastPurplePoint+60, 5);
+    painter.drawLine(startOfLastPurplePoint, 0, startOfLastPurplePoint, 10);
+    painter.drawLine(startOfLastPurplePoint+60, 0, startOfLastPurplePoint+60, 10);
+
+    // Done drawing on the QImage
+    painter.end();
 }
 
 
@@ -16,6 +64,7 @@ DrawWidget::DrawWidget(QWidget *parent) : QWidget(parent)
     m_drawColor = QColor(Qt::black);
     clearCanvas(m_canvas, width(), height());
     // connect(&clickTimer, &QTimer::timeout, this, &DrawWidget::enableClick); // If timer finishes, enable click function.
+    resetPen();
 }
 
 
@@ -53,7 +102,7 @@ void DrawWidget::connectToPico(){
     /*pico = new PicoConnection(this);
     pico->connect("192.168.137.41", 10006);
     qDebug() << "test" << Qt::endl;*/
-    QString ip = receive_broadcasted_ip(12345);
+    QString ip = receive_broadcasted_ip(12345); //"100.81.244.102";
 
     if(ip == ""){
         qDebug() << "No Pico Found!" << Qt::endl;
@@ -70,18 +119,13 @@ DrawWidget::~DrawWidget()
 }
 
 
-void DrawWidget::drawPixel(QPoint pt, bool have_samples)
+void DrawWidget::drawPixel(QPoint pt, bool is_echoed)
 {
     QPainter linePainter(&m_canvas);
-    QRgb lineValue = m_drawColor.rgb();
+    //QRgb lineValue = m_drawColor.rgb();
 
-    if(have_samples){
-        customizePen(pen, lineValue, 1, "custom");
-        linePainter.setPen(pen);
-    }else{
-        customizePen(pen, lineValue, 1, "custom");
-        linePainter.setPen(pen);
-    }
+    //customizePen(pen, lineValue, 1, "custom");
+    linePainter.setPen(pen);
 
 
     if (previousPt.isNull()) // If previous point does not initialized, initialize it.
@@ -109,12 +153,7 @@ void DrawWidget::drawPixel(QPoint pt, bool have_samples)
         points += 1;
         if (points % 1 == 0)
         {
-            if(have_samples){
-                customizePen(pen, lineValue, 3, "red"); // lineValue is a black but inside function it is modified as a red.
-                linePainter.setPen(pen);
-            }
-
-            if (distCalculator(prePt10, pt))
+            if (distCalculator(prePt10, pt) || is_echoed)
             {
 
                 linePainter.drawLine(previousPt, pt);
@@ -236,11 +275,11 @@ void DrawWidget::customizePen(QPen &currentPen, QRgb valueCustom, int width, QSt
 
 void DrawWidget::resetPen() // If canvas is resetted, set pen color to black.
 {
-    QColor color(0, 0, 0); // Create black QColor object
+    QColor color(255, 0, 0); // Create black QColor object
     QRgb valueBlack = color.rgb(); // Get QColor objects rgb values
 
     setDrawColor(color);
-    customizePen(pen, valueBlack, 1, "black"); // Customize corresponding pen
+    customizePen(pen, valueBlack, 3, "red"); // Customize corresponding pen
 }
 
 
@@ -264,15 +303,16 @@ void DrawWidget::printPoints()
     QRgb valueBlue = color.rgb(); // Get QColor objects rgb values
 
     setDrawColor(color);
-    customizePen(pen, valueBlue, 1, "blue");
+    customizePen(pen, valueBlue, 3, "blue");
 
     // Customize corresponding pen
 
     pico->receive_cb = [this](QString received){
         std::vector<std::string> locs = split(received.toStdString(), ';');
+        qDebug() << received << Qt::endl;
         for (std::string loc : locs){
             std::vector<std::string> loc_x_y = split(loc, ',');
-            drawPixel(QPoint(stoi(loc_x_y[1]), stoi(loc_x_y[2])), false);
+            drawPixel(QPoint(stoi(loc_x_y[1]), stoi(loc_x_y[2])), true);
             repaint();
         }
     };
@@ -303,7 +343,7 @@ void DrawWidget::mousePressEvent(QMouseEvent *event)
 
 void DrawWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    if(event->buttons() & Qt::LeftButton)
+    if((event->buttons() & Qt::LeftButton) || (event->buttons() & Qt::TouchPointPressed))
     {
         drawPixel(event->pos());
         repaint();

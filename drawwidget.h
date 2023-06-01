@@ -23,7 +23,7 @@ class DrawWidget : public QWidget
         explicit DrawWidget(QWidget *parent = 0);
         ~DrawWidget();
 
-        void drawPixel(QPoint pt, bool have_samples = true);
+        void drawPixel(QPoint pt, bool is_echoed = false);
         void printPoints();
         //unsigned int pixels[1920][1080];
 
@@ -61,7 +61,9 @@ class DrawWidget : public QWidget
         qreal bisectorVectorLength;
 
         QQueue<QPair<int, int>> angleDistanceQueue;
+        QQueue<QPair<int, int>> angleDistanceQueueAuto;
         QPair<int, int> angleDistancePair;
+        QPair<int, int> angleDistancePairAuto;
 
         QTimer clickTimer;
         int points = 0;
