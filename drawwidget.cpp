@@ -9,6 +9,10 @@ static void clearCanvas(QImage &canvas, int width, int height)
     canvas = QImage(width, height, QImage::Format_RGB888);
     canvas.fill(QColor(Qt::white));
     QPainter painter(&canvas);
+    QColor purple(160, 32, 240);  // RGB values for purple
+    QColor orange(217, 106, 22);  // RGB values for purple
+    QFont font("Arial", 12, QFont::Bold);  // Specify the font family, size, and style
+    int startOfLastPurplePoint = ((width-60)/60)*60;
 
     // Set the pen properties for the grid lines
     QPen pen(Qt::gray); // Set the color of the grid lines
@@ -18,16 +22,37 @@ static void clearCanvas(QImage &canvas, int width, int height)
 
     // Define the size and spacing of the grid cells
     int gridSize = 10;   // Size of each grid cell in pixels
-
     // Draw the vertical lines
     for (int x = 0; x < width; x += gridSize) {
-        painter.drawLine(x, 0, x, height);
+        painter.drawLine(x, 0, x, height);  
     }
-
     // Draw the horizontal lines
     for (int y = 0; y < height; y += gridSize) {
         painter.drawLine(0, y, width, y);
     }
+
+    pen.setBrush(purple);
+    pen.setWidth(4);     // Set the width of the grid lines
+    painter.setPen(pen);
+    for (int x = 0; x < width; x += 60) {
+        for (int y = 0; y < height; y += 60) {
+            painter.drawPoint(x, y);
+        }
+    }
+
+    // Write 60 cm for the grid distances for real life
+    pen.setBrush(Qt::red);
+    //pen.setWidth(4);     // Set the width of the grid lines
+    painter.setFont(font);
+    painter.setPen(pen);
+    painter.drawText(startOfLastPurplePoint+8, 30, "60 cm");
+
+    // Draw a line between two point which are demonstrated with purple points
+    pen.setWidth(3);     // Set the width of the grid lines
+    painter.setPen(pen);
+    painter.drawLine(startOfLastPurplePoint, 5, startOfLastPurplePoint+60, 5);
+    painter.drawLine(startOfLastPurplePoint, 0, startOfLastPurplePoint, 10);
+    painter.drawLine(startOfLastPurplePoint+60, 0, startOfLastPurplePoint+60, 10);
 
     // Done drawing on the QImage
     painter.end();
