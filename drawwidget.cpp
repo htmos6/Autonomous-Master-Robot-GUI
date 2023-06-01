@@ -8,6 +8,29 @@ static void clearCanvas(QImage &canvas, int width, int height)
 {
     canvas = QImage(width, height, QImage::Format_RGB888);
     canvas.fill(QColor(Qt::white));
+    QPainter painter(&canvas);
+
+    // Set the pen properties for the grid lines
+    QPen pen(Qt::gray); // Set the color of the grid lines
+    pen.setWidth(1);     // Set the width of the grid lines
+
+    painter.setPen(pen);
+
+    // Define the size and spacing of the grid cells
+    int gridSize = 10;   // Size of each grid cell in pixels
+
+    // Draw the vertical lines
+    for (int x = 0; x < width; x += gridSize) {
+        painter.drawLine(x, 0, x, height);
+    }
+
+    // Draw the horizontal lines
+    for (int y = 0; y < height; y += gridSize) {
+        painter.drawLine(0, y, width, y);
+    }
+
+    // Done drawing on the QImage
+    painter.end();
 }
 
 
@@ -54,7 +77,7 @@ void DrawWidget::connectToPico(){
     /*pico = new PicoConnection(this);
     pico->connect("192.168.137.41", 10006);
     qDebug() << "test" << Qt::endl;*/
-    QString ip = receive_broadcasted_ip(12345);
+    QString ip = receive_broadcasted_ip(12345); //"100.81.244.102";
 
     if(ip == ""){
         qDebug() << "No Pico Found!" << Qt::endl;
