@@ -8,16 +8,18 @@ static void clearCanvas(QImage &canvas, int width, int height)
 {
     canvas = QImage(width, height, QImage::Format_RGB888);
     canvas.fill(QColor(Qt::white));
+
     QPainter painter(&canvas);
     QColor purple(160, 32, 240);  // RGB values for purple
     QColor orange(217, 106, 22);  // RGB values for purple
     QFont font("Arial", 12, QFont::Bold);  // Specify the font family, size, and style
+
     int startOfLastPurplePoint = ((width-60)/60)*60;
+    int numOfPurplePointsInColumn = ((height+60)/60);
 
     // Set the pen properties for the grid lines
     QPen pen(Qt::gray); // Set the color of the grid lines
     pen.setWidth(1);     // Set the width of the grid lines
-
     painter.setPen(pen);
 
     // Define the size and spacing of the grid cells
@@ -53,6 +55,8 @@ static void clearCanvas(QImage &canvas, int width, int height)
     painter.drawLine(startOfLastPurplePoint, 5, startOfLastPurplePoint+60, 5);
     painter.drawLine(startOfLastPurplePoint, 0, startOfLastPurplePoint, 10);
     painter.drawLine(startOfLastPurplePoint+60, 0, startOfLastPurplePoint+60, 10);
+
+    qDebug() << "PT column: " << numOfPurplePointsInColumn << Qt::endl;    
 
     // Done drawing on the QImage
     painter.end();
@@ -158,7 +162,7 @@ void DrawWidget::drawPixel(QPoint pt, bool is_echoed)
 
                 linePainter.drawLine(previousPt, pt);
                 curPt10 = pt;
-                qDebug() << "x: " << curPt10.x() << "\t" << "y: " << curPt10.y() << "\t" << Qt::endl;
+                qDebug() << "(x,y): " << curPt10.x() << "," << curPt10.y() << Qt::endl;
 
                 // Equalize pair object's angle & distance values
                 angleDistancePair.first = curPt10.x();
@@ -220,9 +224,55 @@ void DrawWidget::calculateAngleDistance(QPoint prePt10, QPoint curPt10)
 }
 
 
+void DrawWidget::autoPath(int width, int height, int automationFileNo)
+{
+    int numOfPurplePointsInColumn = ((height+60)/60);
+    int pathStartX = 30;
+    int pathStartY;
+    QString file_path;
+
+    pathStartY = (numOfPurplePointsInColumn % 2 == 1) ? (numOfPurplePointsInColumn + 1) : numOfPurplePointsInColumn+2;
+    pathStartY = pathStartY/2;
+    pathStartY = (pathStartY-1) * 60;
+
+    file_path = "C:/Users/Legion/Desktop/Qt Paint/Qt-Paint-2/Qt-Paint/auto" + QString::number(automationFileNo) + ".txt";
+
+    QFile file(file_path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "Failed to open the file." << Qt::endl;
+    }
+    // Create a QTextStream to read the file
+    QTextStream in(&file);
+    while (!in.atEnd())
+    {
+        // Read a line from the file
+        QString line = in.readLine();
+
+        // Extract the x and y coordinates from the line
+        int x, y;
+        int start = line.indexOf(":") + 1; // Find the position after the ":"
+        int comma = line.indexOf(",", start); // Find the position of the comma
+        x = line.mid(start, comma - start).toInt(); // Extract x as integer
+        y = line.mid(comma + 1).toInt(); // Extract y as integer
+
+        angleDistancePairAuto.first = x;
+        angleDistancePairAuto.second = y;
+        angleDistanceQueueAuto.enqueue(angleDistancePairAuto);
+
+        // Output the extracted coordinates
+        qDebug() << "x:" << x << ", y:" << y;
+    }
+    // Close the file
+    file.close();
+}
+
+
 void DrawWidget::clear()
 {
     clearCanvas(m_canvas, width(), height());
+    autoPath(width(), height(), 2);
+
     update();
 
     points = 0;

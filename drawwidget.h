@@ -11,6 +11,10 @@
 #include <QtMath>
 #include <QRgb>
 #include <QPen>
+#include <QFile>
+#include <QTextStream>
+#include <QString>
+#include <QDebug>
 
 #include "picoconnection.h"
 
@@ -45,6 +49,8 @@ class DrawWidget : public QWidget
         void calculateAngleDistance(QPoint prePt10, QPoint curPt10);
         bool distCalculator(QPoint prePt10, QPoint curPt10);
         // void drawTriangle(QPoint previousTrianglePt, QPoint currentTrianglePt, int angle, int length);
+        void autoPath(int width, int height, int automationCode);
+
         void enableClick();
 
     private:
