@@ -137,7 +137,7 @@ void DrawWidget::drawPixel(QPoint pt, bool is_echoed)
         previousPt = pt;
         prePt10 = pt;
         points += 1;
-        qDebug() << "x: " << prePt10.x() << "\t" << "y: " << prePt10.y() << "\t" << Qt::endl;
+        qDebug() << "(x,y): " << prePt10.x() << "," << prePt10.y();
 
         /*if(have_samples){
             curPt10 = pt;
@@ -162,7 +162,7 @@ void DrawWidget::drawPixel(QPoint pt, bool is_echoed)
 
                 linePainter.drawLine(previousPt, pt);
                 curPt10 = pt;
-                qDebug() << "(x,y): " << curPt10.x() << "," << curPt10.y() << Qt::endl;
+                qDebug() << "(x,y): " << curPt10.x() << "," << curPt10.y();
 
                 // Equalize pair object's angle & distance values
                 angleDistancePair.first = curPt10.x();
@@ -227,8 +227,10 @@ void DrawWidget::calculateAngleDistance(QPoint prePt10, QPoint curPt10)
 void DrawWidget::autoPath(int width, int height, int automationFileNo)
 {
     int numOfPurplePointsInColumn = ((height+60)/60);
-    int pathStartX = 30;
+    // int pathStartX = 30;
     int pathStartY;
+    int lineCt = 0;
+    int initialYValue;
     QString file_path;
 
     pathStartY = (numOfPurplePointsInColumn % 2 == 1) ? (numOfPurplePointsInColumn + 1) : numOfPurplePointsInColumn+2;
@@ -256,12 +258,23 @@ void DrawWidget::autoPath(int width, int height, int automationFileNo)
         x = line.mid(start, comma - start).toInt(); // Extract x as integer
         y = line.mid(comma + 1).toInt(); // Extract y as integer
 
+        if (lineCt == 0)
+        {
+            initialYValue = y;
+            lineCt += 1;
+        }
+
+        y = y + pathStartY - initialYValue; // Shift y value to put it into the middle of the screen if it is corrupted
+
+        QPair<int, int> angleDistancePairAuto;
         angleDistancePairAuto.first = x;
         angleDistancePairAuto.second = y;
         angleDistanceQueueAuto.enqueue(angleDistancePairAuto);
-
+    
         // Output the extracted coordinates
-        qDebug() << "x:" << x << ", y:" << y;
+        
+        // Check the x & y axis coordinates of the location values
+        // qDebug() << "x:" << x << ", y:" << y;
     }
     // Close the file
     file.close();
@@ -271,7 +284,7 @@ void DrawWidget::autoPath(int width, int height, int automationFileNo)
 void DrawWidget::clear()
 {
     clearCanvas(m_canvas, width(), height());
-    autoPath(width(), height(), 2);
+    // autoPath(width(), height(), 2);
 
     update();
 
