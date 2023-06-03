@@ -137,7 +137,7 @@ void DrawWidget::drawPixel(QPoint pt, bool is_echoed)
         previousPt = pt;
         prePt10 = pt;
         points += 1;
-        qDebug() << "(x,y): " << prePt10.x() << "," << prePt10.y();
+        //qDebug() << "(x,y): " << prePt10.x() << "," << prePt10.y();
 
         /*if(have_samples){
             curPt10 = pt;
@@ -257,6 +257,7 @@ void DrawWidget::autoPath(int width, int height, int automationFileNo)
         int comma = line.indexOf(",", start); // Find the position of the comma
         x = line.mid(start, comma - start).toInt(); // Extract x as integer
         y = line.mid(comma + 1).toInt(); // Extract y as integer
+        //qDebug() << x << " " << y << "\n";
 
         if (lineCt == 0)
         {
@@ -269,7 +270,7 @@ void DrawWidget::autoPath(int width, int height, int automationFileNo)
         QPair<int, int> angleDistancePairAuto;
         angleDistancePairAuto.first = x;
         angleDistancePairAuto.second = y;
-        angleDistanceQueueAuto.enqueue(angleDistancePairAuto);
+        autoPathQ.enqueue(angleDistancePairAuto);
     
         // Output the extracted coordinates
         
@@ -278,6 +279,8 @@ void DrawWidget::autoPath(int width, int height, int automationFileNo)
     }
     // Close the file
     file.close();
+
+    //return autoPath;
 }
 
 
@@ -304,8 +307,30 @@ void DrawWidget::clear()
 
 void DrawWidget::drawPath(int pathID)
 {
+    //QQueue<QPair<int, int>> autoPathPoints;
+    QQueue<QPair<int, int>> autoPathPointsSendToPico;
+    QPoint ptAuto;
+
+    QPainter painter(&m_canvas);
+    QPen pen(Qt::red); // Set the color of the grid lines
+    pen.setWidth(5);     // Set the width of the grid lines
+    painter.setPen(pen);
+
     autoPath(width(), height(), pathID);
+
+    /* 
     qDebug() << "Draw path called ID: " << pathID << Qt::endl;
+    qDebug() << "Points " << autoPathPoints << Qt::endl;
+    */
+
+    while (autoPathQ.isEmpty() == 0)
+    {
+        painter.drawPoint(autoPathQ.front().first, autoPathQ.front().second);
+        angleDistanceQueue.enqueue(autoPathQ.front());
+        autoPathQ.dequeue();
+    }
+    //angleDistanceQueue=autoPathPointsSendToPico;
+    update();
 }
 
 

@@ -68,13 +68,14 @@ class DrawWidget : public QWidget
         qreal bisectorVectorLength;
 
         QQueue<QPair<int, int>> angleDistanceQueue;
-        QQueue<QPair<int, int>> angleDistanceQueueAuto;
+        //QQueue<QPair<int, int>> angleDistanceQueueAuto;
         QPair<int, int> angleDistancePair;
         QPair<int, int> angleDistancePairAuto;
 
         QTimer clickTimer;
         int points = 0;
         PicoConnection* pico = nullptr;
+        QQueue<QPair<int, int>> autoPathQ;
 };
 
 #endif // DRAWWIDGET_H
