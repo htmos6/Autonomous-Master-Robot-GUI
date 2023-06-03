@@ -23,6 +23,17 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuSelect">
+    <property name="title">
+     <string>Path Select</string>
+    </property>
+    <addaction name="actionSelect1"/>
+    <addaction name="actionSelect2"/>
+    <addaction name="actionSelect3"/>
+    <addaction name="actionSelect4"/>
+    <addaction name="actionSelect5"/>
+    <addaction name="actionSelect6"/>
+   </widget>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -35,8 +46,8 @@
    <addaction name="actionClear"/>
    <addaction name="actionPrint"/>
    <addaction name="actionSend"/>
-   <addaction name="actionDraw"/>
    <addaction name="actionConnect"/>
+   <addaction name="menuSelect"/>
    <addaction name="separator"/>
    <addaction name="separator"/>
   </widget>
@@ -64,14 +75,39 @@
     <string>Send</string>
    </property>
   </action>
-  <action name="actionDraw">
-   <property name="text">
-    <string>Draw</string>
-   </property>
-  </action>
   <action name="actionConnect">
    <property name="text">
     <string>Connect</string>
+   </property>
+  </action>
+  <action name="actionSelect1">
+   <property name="text">
+    <string>Short Straight 120 cm</string>
+   </property>
+  </action>
+  <action name="actionSelect2">
+   <property name="text">
+    <string>Long Straight 300 cm</string>
+   </property>
+  </action>
+  <action name="actionSelect3">
+   <property name="text">
+    <string>90 Degrees Curve</string>
+   </property>
+  </action>
+  <action name="actionSelect4">
+   <property name="text">
+    <string>S Curve</string>
+   </property>
+  </action>
+  <action name="actionSelect5">
+   <property name="text">
+    <string>Full Circular</string>
+   </property>
+  </action>
+  <action name="actionSelect6">
+   <property name="text">
+    <string>Half Circular + 90 Degrees Curve</string>
    </property>
   </action>
  </widget>
@@ -127,10 +163,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionDraw</sender>
+   <sender>actionConnect</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>drawPath()</slot>
+   <slot>connectToPico()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -143,10 +179,90 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionConnect</sender>
+   <sender>actionSelect1</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>connectToPico()</slot>
+   <slot>sel1()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>236</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSelect2</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>sel2()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>236</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSelect3</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>sel3()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>236</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSelect4</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>sel4()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>236</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSelect5</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>sel5()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>236</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSelect6</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>sel6()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -164,5 +280,11 @@
   <slot>clear()</slot>
   <slot>printPoints()</slot>
   <slot>connectToPico()</slot>
+  <slot>sel1()</slot>
+  <slot>sel2()</slot>
+  <slot>sel3()</slot>
+  <slot>sel4()</slot>
+  <slot>sel5()</slot>
+  <slot>sel6()</slot>
  </slots>
 </ui>
