@@ -33,6 +33,7 @@ public slots:
     void clear();
     void printPoints();
     void on_actionSend_triggered();
+    void drawPath();
     void on_actionConnect_triggered();
 
 private:

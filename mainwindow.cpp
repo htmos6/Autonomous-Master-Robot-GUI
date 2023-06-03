@@ -4,6 +4,7 @@
 #include <QColorDialog>
 #include <QLayout>
 
+
 class MainWindowPrivate {
 public:
     MainWindowPrivate(MainWindow *owner);
@@ -13,6 +14,7 @@ public:
     void clear();
     void printPoints();
     void connect();
+    void drawPath();
 
 private slots:
     void on_actionPrint_triggered();
@@ -61,6 +63,11 @@ void MainWindowPrivate::connect()
     m_drawWidget->connectToPico();
 }
 
+void MainWindowPrivate::drawPath()
+{
+    m_drawWidget->drawPath();
+}
+
 MainWindowPrivate::~MainWindowPrivate(){
     delete m_ui;
 }
@@ -93,6 +100,11 @@ void MainWindow::on_actionConnect_triggered()
 void MainWindow::on_actionSend_triggered()
 {
     d->printPoints();
+}
+
+void MainWindow::drawPath()
+{
+    d->drawPath();
 }
 
 void MainWindow::clear()

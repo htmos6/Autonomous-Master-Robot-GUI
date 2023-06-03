@@ -302,6 +302,12 @@ void DrawWidget::clear()
 }
 
 
+void DrawWidget::drawPath()
+{
+    qDebug() << "Draw path called" << Qt::endl;
+}
+
+
 void DrawWidget::customizePen(QPen &currentPen, QRgb valueCustom, int width, QString colorName)
 {
     QColor colorRed(255, 0, 0); // Create red QColor object
@@ -357,7 +363,7 @@ void DrawWidget::printPoints()
     while (!angleDistanceQueue.isEmpty())
     {
         pico->send(QString::number(angleDistanceQueue.front().first) + "," + QString::number(angleDistanceQueue.front().second) + "\n");
-        qDebug() << angleDistanceQueue.dequeue() << Qt::endl;
+        qDebug() << "Sent Packet: " << angleDistanceQueue.dequeue() << Qt::endl;
     }
 
     previousPt = QPoint();

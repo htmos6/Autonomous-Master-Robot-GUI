@@ -36,6 +36,7 @@ class DrawWidget : public QWidget
         void clear();
         void setDrawColor(QColor color);
         void connectToPico();
+        void drawPath();
 
     signals:
     protected:
