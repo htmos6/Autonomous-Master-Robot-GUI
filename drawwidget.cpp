@@ -274,7 +274,7 @@ void DrawWidget::autoPath(int width, int height, int automationFileNo)
         // Output the extracted coordinates
         
         // Check the x & y axis coordinates of the location values
-        // qDebug() << "x:" << x << ", y:" << y;
+        qDebug() << "x:" << x << ", y:" << y;
     }
     // Close the file
     file.close();
@@ -302,9 +302,10 @@ void DrawWidget::clear()
 }
 
 
-void DrawWidget::drawPath()
+void DrawWidget::drawPath(int pathID)
 {
-    qDebug() << "Draw path called" << Qt::endl;
+    autoPath(width(), height(), pathID);
+    qDebug() << "Draw path called ID: " << pathID << Qt::endl;
 }
 
 
