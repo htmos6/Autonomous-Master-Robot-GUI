@@ -27,3 +27,5 @@ FORMS    += mainwindow.ui
 
 RESOURCES += \
     Resources.qrc
+
+QMAKE_POST_LINK += cp $$PWD/auto*.txt $$OUT_PWD
