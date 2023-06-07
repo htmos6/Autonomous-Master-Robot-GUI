@@ -110,6 +110,9 @@ void DrawWidget::connectToPico(){
 
     if(ip == ""){
         qDebug() << "No Pico Found!" << Qt::endl;
+        QMessageBox messageBox;
+        messageBox.critical(0,"Error","Could not connect to the master!");
+        messageBox.setFixedSize(500,200);
         return;
     }
     pico = new PicoConnection(this);
