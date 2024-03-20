@@ -110,6 +110,9 @@ void DrawWidget::connectToPico(){
 
     if(ip == ""){
         qDebug() << "No Pico Found!" << Qt::endl;
+        QMessageBox messageBox;
+        messageBox.critical(0,"Error","Could not connect to the master!");
+        messageBox.setFixedSize(500,200);
         return;
     }
     pico = new PicoConnection(this);
@@ -237,7 +240,7 @@ void DrawWidget::autoPath(int width, int height, int automationFileNo)
     pathStartY = pathStartY/2;
     pathStartY = (pathStartY-1) * 60;
 
-    file_path = "C:/Users/Legion/Desktop/Qt Paint/Qt-Paint-2/Qt-Paint/auto" + QString::number(automationFileNo) + ".txt";
+    file_path = "auto" + QString::number(automationFileNo) + ".txt";
 
     QFile file(file_path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
