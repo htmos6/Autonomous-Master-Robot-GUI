@@ -1,6 +1,16 @@
 # README
 ## Introduction
-KT-007-GUI is a graphical user interface application developed using the C++ Qt framework. The application is designed to facilitate the drawing of paths and adjustment of speeds for mobile robots. The user interface is intuitive and user-friendly, making it easy for users to quickly learn how to use the application. With KT-007-GUI, users can create complex paths with ease and set the speed of the mobile robots to match their specific needs. The application is highly customizable, allowing users to adjust various parameters to suit their requirements. The robust architecture of the application ensures smooth performance even when dealing with large amounts of data. Overall, KT-007-GUI is a powerful tool for anyone looking to create complex paths for mobile robots with ease and speed adjustment.
+KT-007-GUI is a graphical user interface application developed using the C++ Qt framework. The application is designed to facilitate the drawing of paths and adjustment of speeds for mobile robots. The user interface is intuitive and user-friendly, making it easy for users to quickly learn how to use the application. With KT-007-GUI, users can create complex paths with ease and set the speed of the mobile robots to match their specific needs. The application is highly customizable, allowing users to adjust various parameters to suit their requirements. 
+
+* Route Planning
+
+* Real Time Route Tracking
+
+* TCP/IP Based Communication
+
+* Bluetooth
+
+Overall, KT-007-GUI is a powerful tool for anyone looking to create complex paths for mobile robots with ease and speed adjustment.
 
 The class also includes functionality for managing the speed of the robot, which can be adjusted through the GUI. This allows users to optimize the robot's movement based on their specific needs and constraints. Additionally, the DrawWidget class provides motion planning capabilities, which can help users to plan the most efficient and effective path for the robot to follow.  
 
